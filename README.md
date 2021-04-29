@@ -18,9 +18,9 @@ Blender:
 * Enable the addon by setting the checkmark in front of it
 
 ## Known Issues
-* the export of n frames resulting in only n-1 animation pairs is not a bug but by design
+* The export of n frames resulting in only n-1 animation pairs is not a bug but by design
 
-please report any other issue at https://github.com/talyataya/animExport/issues
+Please report any other issue at https://github.com/talyataya/animExport/issues
 
 ## Usage ##
 Blender:
@@ -43,6 +43,6 @@ Blender:
 * 'Export model.cfg'
 
 In a text editor of your choice:
-* Prepare a basic model.cfg with all the necessary skeletonBones
-	You can use https://github.com/Talyataya/skelExport to extract skeletonBones, make sure you disable parent extraction.
-* #include the exported file(s) within the Animations class of your model.cfg
+* Prepare a basic model.cfg with all the necessary skeletonBones. 
+You can use https://github.com/Talyataya/skelExport to extract skeletonBones, make sure you disable parent extraction.
+* #include the exported file(s) within the Animations class of your model.cfg.
