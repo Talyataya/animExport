@@ -1,5 +1,6 @@
 # animExport
 animExport is a Blender Addon for exporting animation into a format usable in Arma 3 model.cfg files.
+anim2cfg is taken as foundation and animExport is built on top of it to provide ease of use.
 
 ## Features
 * Export of the (matrix_world) location/rotation of the active object(s) or bone(s) of an armature according to active animation.
