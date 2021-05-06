@@ -28,15 +28,16 @@ Blender:
 * If Armature mode will not be used, select object(s) in the Outliner.
 * Go to 'File' -> 'Export' -> 'Arma 3 model.cfg (.cfg/.hpp)'
 * Set the export options
-    * 'Parent Object': Animations will be exported relative to this object. When not set the origin will be used.
+	* 'Parent Object': Animations will be exported relative to this object. When not set the origin will be used.
 	* 'Armature Object': If set, armature of this object will be used instead of selected object(s). Bone names are used as selection names.
-    * 'Start Frame': Starting frame to export.
-    * 'End Frame': End frame to export.
-    * 'Selection Names': Selection names to be used in the model.cfg. Defaults to the name of the objects. Automatically retrieved from chosen objects in the Outliner.
-    * 'Source Name': Source name to be used in the model.cfg.
-    * 'minValue': minValue to be used in the model.cfg for the first animation.
-    * 'maxValue': maxValue to be used in the model.cfg for the last animation.
-    * 'Precision': Number of decimal places.
+	* 'Start Frame': Starting frame to export.
+	* 'End Frame': End frame to export.
+	* 'Selection Names': Selection names to be used in the model.cfg. Defaults to the name of the objects. Automatically retrieved from chosen objects in the Outliner.
+	* 'Source Name': Source name to be used in the model.cfg.
+	* 'Source Address': Does the Animation loop or not?
+	* 'minValue': minValue to be used in the model.cfg for the first animation.
+	* 'maxValue': maxValue to be used in the model.cfg for the last animation.
+	* 'Precision': Number of decimal places.
 	* 'Add Folder': Whether or not a folder will be created for additional files.(If only one object/bone exists, no folder will be created.)
 	* 'Folder Name': Name of the generated folder. If unset, Source name will be used as folder name. If folder with same name exists, that folder will be used.
 * Navigate the directory tree and set/select the file name (existing files will be OVERWRITTEN)
