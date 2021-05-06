@@ -22,7 +22,7 @@ Blender:
 
 Please report any other issue at https://github.com/talyataya/animExport/issues
 
-## Usage ##
+## Usage
 Blender:
 * Choose the animation you want to export, make sure it is active animation by verifying through playback.
 * If Armature mode will not be used, select object(s) in the Outliner.
@@ -46,3 +46,11 @@ In a text editor of your choice:
 * Prepare a basic model.cfg with all the necessary skeletonBones. 
 You can use https://github.com/Talyataya/skelExport to extract skeletonBones, make sure you disable parent extraction.
 * #include the exported file(s) within the Animations class of your model.cfg.
+
+## Changelog
+
+v0.1.1:
+* Added: sourceAddress can now be provided for loop, mirror options. (If clamp, output will not change as it is default value for Arma 3.)
+* Fixed: Addon was crashing when run on Blender 2.80 in armature mode, due created objects by addon had a parameter that was not really needed and was not supported by 2.80.
+* Fixed: The output of include file was modifying if a file with same name existed, instead of creating a fresh file.
+* Fixed: Now preserves user's active frame instead of last frame the data was exported from.

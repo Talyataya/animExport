@@ -16,7 +16,7 @@
 bl_info = {
     "name": "animExport: Animation to model.cfg",
     "author": "Talya_taya",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (2, 80, 0),
     "location": "File -> Export",
     "description": "Export animations to Arma 3 model.cfg",
@@ -60,7 +60,7 @@ def generate_bone_objects(armature_object_str):
         return 2, []
     objects = []
     for bone in armature.bones:
-        bpy.ops.mesh.primitive_plane_add(size=0, enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
+        bpy.ops.mesh.primitive_plane_add(size=0, enter_editmode=False, align='WORLD', location=(0, 0, 0))
         new_object = bpy.context.active_object
         new_object.name = bone.name
         bpy.data.collections['animExport collection'].objects.link(new_object)
@@ -89,14 +89,13 @@ def create_folder(path, name):
             #We are allowing user to get all generated files in an existing folder.
             pass
 
-def export_anim(file, generate_multiple_files, obj, selection_name='', source_name='', parent_name='',
+def export_anim(file, generate_multiple_files, obj, obj_index=0, source_name='', source_address='clamp', parent_name='',
                 frame_start=0, frame_end=0, min_value=0.0, max_value=1.0,
                 precision=7, create_folder=True, folder_name=''):
     frames = range(frame_start, 1 + frame_end)
     last = None
     i = 0
-    if selection_name == '':
-        selection_name = obj.name
+    selection_name = obj.name
     parent_object = None
     parent_matrix = Matrix()
     if parent_name != '':
@@ -107,11 +106,12 @@ def export_anim(file, generate_multiple_files, obj, selection_name='', source_na
     file_path = file
     if generate_multiple_files:
         file_name, file_path = create_file_name_and_path(file, selection_name, create_folder, folder_name)
-        with open(file, 'a') as main_cfg:
+        with open(file, f"{'w' if obj_index == 0 else 'a'}") as main_cfg:
             prefix = ""
             if create_folder:
                 prefix = f"{folder_name}\\"
             main_cfg.write(f"#include \"{prefix}{file_name}\"\n")
+    new_line_char = "\n"
     with open(file_path, 'w') as cfg:
         for f in frames:
             bpy.context.scene.frame_set(f)
@@ -135,6 +135,7 @@ def export_anim(file, generate_multiple_files, obj, selection_name='', source_na
                 cfg.write(f"class {sanitize_classname(source_name)}_{sanitize_classname(selection_name)}_trans_{i} {{\n"
                           f"    type       = direct;\n"
                           f"    source     = {source_name};\n"
+                          f"{f'    sourceAddress = {source_address};{new_line_char}' if source_address != 'clamp' else ''}"
                           f"    selection  = {selection_name};\n"
                           f"    axisPos[]  = {{0, 0, 0}};\n"
                           f"    axisDir[]  = {{{dn.x:.{precision}f}, {dn.z:.{precision}f}, {dn.y:.{precision}f}}};\n"
@@ -146,6 +147,7 @@ def export_anim(file, generate_multiple_files, obj, selection_name='', source_na
                           f"class {sanitize_classname(source_name)}_{sanitize_classname(selection_name)}_rot_{i} {{\n"
                           f"    type       = direct;\n"
                           f"    source     = {source_name};\n"
+                          f"{f'    sourceAddress = {source_address};{new_line_char}' if source_address != 'clamp' else ''}"
                           f"    selection  = {selection_name};\n"
                           f"    axisPos[]  = {{{p.x:.{precision}f}, {p.z:.{precision}f}, {p.y:.{precision}f}}};\n"
                           f"    axisDir[]  = {{{q_axis.x:.{precision}f}, {q_axis.z:.{precision}f}, {q_axis.y:.{precision}f}}};\n"
@@ -171,6 +173,13 @@ class ANIMEXPORT_OT_ModelCfgExport(bpy.types.Operator,
         name="Source Name",
         description="Source name to be used in the model.cfg",
         default='')
+    source_address: bpy.props.EnumProperty(
+        items=[("clamp", "Clamp", "", 1),
+               ("loop", "Loop", "", 2),
+               ("mirror", "Mirror", "", 3)],
+        name="Source Address",
+        description="Does the animation loop or not?",
+        default="clamp")
     parent_name: bpy.props.StringProperty(
         name="Parent Object",
         description=("Animations will be exported relative to this object.\n"
@@ -228,6 +237,7 @@ class ANIMEXPORT_OT_ModelCfgExport(bpy.types.Operator,
         col.label(text="model.cfg")
         col.label(text="Selected objects will be exported to respective files.")
         col.prop(self, "source_name")
+        col.prop(self, "source_address")
         col.prop(self, "min_value")
         col.prop(self, "max_value")
         col.prop(self, "precision")
@@ -243,6 +253,7 @@ class ANIMEXPORT_OT_ModelCfgExport(bpy.types.Operator,
 
     def execute(self, context):
         try:
+            current_frame = bpy.context.scene.frame_current
             is_armature_mode = self.armature_object != ""
             if is_armature_mode:
                 status, objects = generate_bone_objects(self.armature_object)
@@ -266,12 +277,13 @@ class ANIMEXPORT_OT_ModelCfgExport(bpy.types.Operator,
                     if folder_name == '':
                         folder_name = source_name
                     create_folder(self.filepath, folder_name)
-                for obj in objects:
+                for obj_index, obj in enumerate(objects):
                     result, nAnims = export_anim(self.filepath,
                                                  generate_multiple_files,
                                                  obj,
-                                                 obj.name,
+                                                 obj_index,
                                                  source_name=source_name,
+                                                 source_address=self.source_address,
                                                  parent_name=self.parent_name,
                                                  frame_start=self.frame_start,
                                                  frame_end=self.frame_end,
@@ -296,6 +308,7 @@ class ANIMEXPORT_OT_ModelCfgExport(bpy.types.Operator,
         finally:
             if is_armature_mode:
                 delete_bone_objects()
+            bpy.context.scene.frame_set(current_frame)
         return {'FINISHED'}
 
 def ModelCfgExportMenuFunc(self, context):
